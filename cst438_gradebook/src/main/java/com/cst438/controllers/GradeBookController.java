@@ -95,8 +95,9 @@ public class GradeBookController {
         @Transactional
         public void addNewAssignment(@RequestBody Assignment newAssignment) {
 	        Assignment assignment = new Assignment();
-	        assignment.setName(assignment.getName());
-	        assignment.setDueDate(assignment.getDueDate());
+	        assignment.setName(newAssignment.getName());
+                assignment.setDueDate(newAssignment.getDueDate());
+	        assignment.setCourse(newAssignment.getCourse());
 	        assignmentRepository.save(assignment);
 	}
 	
