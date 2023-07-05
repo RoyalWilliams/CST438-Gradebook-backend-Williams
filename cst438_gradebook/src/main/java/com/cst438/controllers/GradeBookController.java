@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -88,6 +89,44 @@ public class GradeBookController {
 		}
 		return gradebook;
 	}
+	
+	// As an instructor for a course, I can add a new assignment for my course. The assignment has a name and a due date.
+	@PostMapping("/gradebook/addNewAssignment")
+        @Transactional
+        public void addNewAssignment(@RequestBody Assignment newAssignment) {
+	        Assignment assignment = new Assignment();
+	        assignment.setName(assignment.getName());
+	        assignment.setDueDate(assignment.getDueDate());
+	        assignmentRepository.save(assignment);
+	}
+	
+	// As an instructor, I can edit the name of the assignment for my course.
+	@PutMapping("/gradebook/editAssignmentName/{id}")
+        @Transactional
+        public void editAssignmentName(@RequestBody String assignmentName, @PathVariable("id") int assignmentId) {
+	        String email = "dwisneski@csumb.edu";
+	        Assignment assignment = checkAssignment(assignmentId, email);
+	        
+	        if(assignment == null) {
+	           throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Assignment Id not found or wrong");
+	        }     
+	        assignment.setName(assignmentName);
+	        assignmentRepository.save(assignment);
+	}
+	
+	// As an instructor, I can delete an assignment for my course (only if there are no grades for the assignment).
+	@DeleteMapping("/gradebook/deleteAssignmentName/{id}")
+	@Transactional
+	public void deleteAssignment(@PathVariable("id") int assignmentId) {
+           String email = "dwisneski@csumb.edu";
+           Assignment deleteAssignment = checkAssignment(assignmentId, email);
+           
+           if(deleteAssignment.getNeedsGrading() == 0) {
+              throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Assignment Id found and has been graded" + assignmentId);
+           }
+           assignmentRepository.delete(deleteAssignment);
+         }
+	
 	
 	@PostMapping("/course/{course_id}/finalgrades")
 	@Transactional
